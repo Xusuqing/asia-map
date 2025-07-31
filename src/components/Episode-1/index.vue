@@ -79,21 +79,19 @@ const toggleYamataiColors = () => {
         });
     // 如果不显示地名，并且为邪马台颜色，则不显示地名
     if (showYamataiColors.value && !showRegionNames.value) {
+        console.log("不显示地名");
+
         // 将邪马台名字去掉
         labelContainers!.selectAll(".region-label")
             // @ts-ignore
-            .filter(d => d.properties.chineseName == "邪马台")
-            .text("")
+            .filter(d => d.properties.chineseName == "福冈县")
+            .text("邪马台")
             .transition()
             .duration(500)
             .attr("opacity", 0)
-            .attr("x", () => 0)
-            .attr("y", () => 0);
     }
     // 如果不显示地名，并且不为邪马台颜色，则将福冈县名字改成邪马台，并进行一定偏移
     else if (!showYamataiColors.value && !showRegionNames.value) {
-        console.log(123);
-
         // 显示邪马台名字
         labelContainers!.selectAll(".region-label")
             // @ts-ignore
