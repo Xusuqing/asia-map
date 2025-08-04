@@ -7,6 +7,7 @@
     <button id="copy-location">复制位置信息</button>
     <button id="jump-to-location">跳转位置</button>
     <Episode1 v-if="mapGroup" :mapGroup="mapGroup" :labelContainers="labelContainers"></Episode1>
+    <SelectBorder />
   </div>
   <div class="map-container" id="map"></div>
   <div class="tooltip" id="tooltip" style="opacity: 0;"></div>
@@ -14,9 +15,11 @@
 </template>
 
 <script setup lang="ts">
+import SelectBorder from './components/SelectBorder/index.vue'
 import * as d3 from 'd3'
 import { backgroundColor, showOptionColors, regionColors, defaultColor, noStrokeRegions, showHoverRegionNames, showRegionNames } from "./config/config"
-import { japanJson } from './assets/japan';
+// import { japanJson } from './assets/japan';
+import { asiaJson } from './config/translate';
 import { reactive, onMounted, type Reactive, ref, type Ref } from 'vue';
 import Episode1 from './components/Episode-1/index.vue'
 // @ts-ignore
@@ -86,16 +89,13 @@ onMounted(() => {
   mapGroup.value = zoomGroup.append("g").attr("id", "map-group");
 
   // 使用更合适的示例GeoJSON数据
-  const geojsonData = japanJson
+  const geojsonData = asiaJson
 
   // 自定义标签偏移量
   const labelOffsets: Record<string, Array<number>> = {
     "Kochi": [0, -4],
     "Tokyo": [0, -23] // 调整东京标签的位置
   };
-
-
-
   // 添加区域
   mapGroup.value!.selectAll(".region")
     .data(geojsonData.features)
@@ -123,7 +123,11 @@ onMounted(() => {
     .on("mouseout", function () {
       d3.select("#tooltip")
         .style("opacity", 0);
-    });
+    })
+    .on("click", function (d) {
+      console.log(d);
+    })
+    ;
 
   // 添加区域标签容器
   labelContainers = mapGroup.value.selectAll(".label-container")

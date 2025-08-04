@@ -69,18 +69,17 @@ const toggleRegionNames = () => {
 // 邪马台颜色控制
 const toggleYamataiColors = () => {
     showYamataiColors.value = !showYamataiColors.value;
+    const regex = /(大分|福岡).*区/;
     mapGroup!.selectAll(".region")
         .each(d => {
             // @ts-ignore
-            if (d.properties.name.includes("区")) {
+            if (regex.test(d.properties.name)) {
                 // @ts-ignore
                 showYamataiColors.value ? highlightRegion(mapGroup!, d.properties.name) : highlightRegion(mapGroup!, d.properties.name, true, "#B79220")
             }
         });
-    // 如果不显示地名，并且为邪马台颜色，则不显示地名
+    // 如果不显示地名，并且为邪马台颜色，则不显示邪马台的名字
     if (showYamataiColors.value && !showRegionNames.value) {
-        console.log("不显示地名");
-
         // 将邪马台名字去掉
         labelContainers!.selectAll(".region-label")
             // @ts-ignore

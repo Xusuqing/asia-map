@@ -2,7 +2,6 @@ import { japanJson } from "../assets/japan"
 import { chinaJson } from "../assets/china"
 import { southKoreaJson } from "../assets/south_korea"
 import { northKoreaJson } from "../assets/north_korea"
-import type { AnyObject } from "./type"
 
 const table: Record<string, string> = {
     "Hokkaido": "北海道",
@@ -109,10 +108,33 @@ const countries = {
     "south korea": ["Seoul", "Busan", "Daegu", "Incheon", "Gwangju", "Daejeon", "Ulsan", "Sejong", "Gyeonggi-do", "Gangwon-do", "Chungcheongbuk-do", "Chungcheongnam-do", "Jeollabuk-do", "Jeollanam-do", "Gyeongsangbuk-do", "Gyeongsangnam-do", "Jeju-do"]
 }
 
+// japanJson.features = [...japanJson.features, ...regionJson.features]
+
+japanJson.features.forEach(item => {
+    if (!item.properties.name) {
+        item.properties.chineseName = item.properties.name = item.properties.kuname;
+    }
+    if (item.properties.name) {
+        item.properties.chineseName = table[item.properties.name]
+    }
+})
+// console.log(asiaJson);
+
 // 合并不同国家的数据
 const asiaJson: {
-    type: string,
-    features: AnyObject[]
+    type: string;
+    features: {
+        type: string;
+        properties: {
+            name?: string;
+            chineseName?: string;
+            kuname?: string;
+        };
+        geometry: {
+            coordinates: number[][][][];
+            type: string;
+        };
+    }[];
 } = {
     type: "FeatureCollection",
     features: []
@@ -139,19 +161,8 @@ keys.forEach(key => {
         item.properties.name = item.properties.kuname;
     })
     // @ts-ignore
-    japanJson.features.push(...regionJson[key].features);
+    asiaJson.features.push(...regionJson[key].features);
 })
 
-// japanJson.features = [...japanJson.features, ...regionJson.features]
 
-japanJson.features.forEach(item => {
-    if (!item.properties.name) {
-        item.properties.chineseName = item.properties.name = item.properties.kuname;
-    }
-    if (item.properties.name) {
-        item.properties.chineseName = table[item.properties.name]
-    }
-})
-// console.log(asiaJson);
-
-export { table, japanJson, countries }
+export { table, japanJson, countries, asiaJson }
