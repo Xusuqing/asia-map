@@ -106,7 +106,7 @@ let regionColors: Record<string, string> = {
     // 冲绳县（偏异域感）
     "Okinawa": "#7D2E2E",      // 冲绳县（暗红，与其他县无相邻）
 
-    "Gwangju": "red",
+    // "Gwangju": "red",
 
     // 邪马台分区
     "大分1区": "#8B4513",

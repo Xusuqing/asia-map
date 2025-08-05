@@ -4,12 +4,19 @@
     <button id="showName" :class="{ active: showRegionNames }" @click="toggleRegionNames">显示地名</button>
     <button id="yamatai-colors" :class="{ active: showYamataiColors }" @click="toggleYamataiColors">邪马台颜色</button>
     <button id="dog-slave-state" :class="{ active: showGonugoku }" @click="toggleGonugoku">狗奴国显现</button>
+    <button id="shouLuoyang" :class="{ active: showLuoyang }" @click="toggleLuoyang">洛阳</button>
+    <button id="showJinji" :class="{ active: showJinji }" @click="toggleJinji('邪马台')">近畿邪马台</button>
+    <button id="showJinji" :class="{ active: showJinji }" @click="toggleJinji('大和国')">近畿大和国</button>
+    <button id="merge" :class="{ active: merge }" @click="toggleMerge">大和吞并邪马台</button>
+    <button id="remerge" :class="{ active: remerge }" @click="toggleRemerge">邪马台吞并大和</button>
+
+    <button id="resetColor" @click="resetColors">重置</button>
 </template>
 
 
 <script setup lang="ts">
 import * as d3 from 'd3'
-import { defineProps, defineOptions, withDefaults } from 'vue';
+import { defineProps, defineOptions, withDefaults, ref } from 'vue';
 import { showOptionColors, regionColors, defaultColor, showYamataiColors, highlightRegion, showRegionNames, showGonugoku } from '../../config/config';
 defineOptions({
     name: 'Episode1'
@@ -28,13 +35,66 @@ interface Props {
             type: string;
         };
     }, SVGGElement, unknown> | null,
+    projection: d3.GeoProjection | null,
     // path: d3.GeoPath<any, any> | null,
     // rotationAngle: number,
 }
-const { mapGroup, labelContainers } = withDefaults(defineProps<Props>(), {
+const { mapGroup, labelContainers, projection } = withDefaults(defineProps<Props>(), {
     mapGroup: null,
     labelContainers: null,
+    projection: null
 })
+
+// 显示洛阳
+const showLuoyang = ref(false)
+const toggleLuoyang = () => {
+    showLuoyang.value = !showLuoyang.value
+    if (showLuoyang.value) {
+        // 1. 定义目标位置经纬度（洛阳）
+        const luoyangCoords: [number, number] = [112.45, 34.62]; // [经度, 纬度]
+
+        // 2. 创建圆形的SVG容器（继承地图变换）
+        const circleGroup = mapGroup!.append("g")
+            .attr("class", "location-marker")
+            .attr("transform", () => {
+                // 将经纬度转换为屏幕坐标
+                const projectedCoords = projection!(luoyangCoords);
+                if (!projectedCoords) return "";
+                const [x, y] = projectedCoords;
+                // const [x, y] = projection!(luoyangCoords);
+                // 直接平移到目标坐标（圆形默认以中心定位）
+                return `translate(${x}, ${y})`;
+            });
+
+        // 3. 绘制直径100px的圆形（半径50px）
+        circleGroup.append("circle")
+            .attr("r", 7) // 半径50px（直径100px，与之前正方形尺寸对应）
+            .attr("fill", "rgba(0, 128, 255, 0.7)") // 半透明蓝色
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 2)
+            .attr("stroke-dasharray", "5,5") // 可选：虚线边框
+            .on("mouseover", function () {
+                // 可选：鼠标悬停效果
+                d3.select(this).attr("fill", "rgba(0, 128, 255, 1)");
+            })
+            .on("mouseout", function () {
+                d3.select(this).attr("fill", "rgba(0, 128, 255, 0.7)");
+            });
+
+        // 4. 可选：添加文字标签
+        circleGroup.append("text")
+            .text("洛阳")
+            .attr("text-anchor", "middle")
+            .attr("dy", 20) // 文字在圆形下方
+            .attr("fill", "#fff")
+            .attr("font-size", 12);
+        console.log(circleGroup);
+
+    } else {
+        // 移除洛阳
+        mapGroup!.select(".location-marker").remove();
+    }
+}
 
 // 初始化一下地名配置
 labelContainers!.selectAll(".region-label")
@@ -67,6 +127,7 @@ const toggleRegionNames = () => {
 };
 
 // 邪马台颜色控制
+const yamataiColor = "#B79220"
 const toggleYamataiColors = () => {
     showYamataiColors.value = !showYamataiColors.value;
     const regex = /(大分|福岡).*区/;
@@ -75,7 +136,7 @@ const toggleYamataiColors = () => {
             // @ts-ignore
             if (regex.test(d.properties.name)) {
                 // @ts-ignore
-                showYamataiColors.value ? highlightRegion(mapGroup!, d.properties.name) : highlightRegion(mapGroup!, d.properties.name, true, "#B79220")
+                showYamataiColors.value ? highlightRegion(mapGroup!, d.properties.name) : highlightRegion(mapGroup!, d.properties.name, true, yamataiColor)
             }
         });
     // 如果不显示地名，并且为邪马台颜色，则不显示邪马台的名字
@@ -88,6 +149,16 @@ const toggleYamataiColors = () => {
             .transition()
             .duration(500)
             .attr("opacity", 0)
+
+        setTimeout(() => {
+            labelContainers!.selectAll(".region-label")
+                // @ts-ignore
+                .filter(d => d.properties.chineseName == "福冈县")
+                .text("邪马台")
+                .attr("opacity", 0)
+                .attr("x", () => 0)
+                .attr("y", () => 0);
+        }, 500)
     }
     // 如果不显示地名，并且不为邪马台颜色，则将福冈县名字改成邪马台，并进行一定偏移
     else if (!showYamataiColors.value && !showRegionNames.value) {
@@ -129,6 +200,128 @@ const toggleGonugoku = () => {
             .attr("opacity", 0)
     }
 };
+
+// 显示近畿邪马台/大和
+const showJinji = ref(false)
+const jinjiColor = "#9c27b0"
+const jinjiList = ["Kyoto", "Osaka", "Mie", "Shiga", "Hyogo", "Nara", "Wakayama"]
+/**
+ * 
+ * @param name 大和国/邪马台
+ * @param color 如果为空，则使用近畿颜色，否则为color
+ */
+const toggleJinji = (name: string, color?: string) => {
+    showJinji.value = !showJinji.value;
+    jinjiList.forEach(item => {
+        highlightRegion(mapGroup!, item, true, showJinji.value ? color || jinjiColor : defaultColor)
+    })
+    if (showJinji.value) {
+        // 显示近畿邪马台名字
+        labelContainers!.selectAll(".region-label")
+            // @ts-ignore
+            .filter(d => d.properties.chineseName == "大阪府")
+            .text(name)
+            .attr("opacity", 1)
+            .attr("x", () => 5)
+        // .attr("y", () => 5);
+    } else {
+        // 显示近畿邪马台名字
+        labelContainers!.selectAll(".region-label")
+            // @ts-ignore
+            .filter(d => d.properties.chineseName == "大阪府")
+            .text(name)
+            .attr("opacity", 0)
+            .attr("x", () => 0)
+        // .attr("y", () => 5);
+    }
+}
+
+// 大和吞并邪马台
+const merge = ref(false)
+const toggleMerge = () => {
+    merge.value = !merge.value;
+    if (merge.value) {
+        // 逐步吞并中国地区，再吞并邪马台
+        const mergeList = ["Okayama", "Tottori", "Shimane", "Hiroshima", "Yamaguchi"]
+        const time = 500
+        highlightRegion(mapGroup!, mergeList[0], true, jinjiColor)
+        highlightRegion(mapGroup!, mergeList[1], true, jinjiColor)
+        setTimeout(() => {
+            highlightRegion(mapGroup!, mergeList[2], true, jinjiColor)
+            highlightRegion(mapGroup!, mergeList[3], true, jinjiColor)
+            setTimeout(() => {
+                highlightRegion(mapGroup!, mergeList[4], true, jinjiColor)
+                setTimeout(() => {
+                    highlightRegion(mapGroup!, "Fukuoka", true, jinjiColor)
+                    const regex = /(大分|福岡).*区/;
+                    setTimeout(() => {
+                        mapGroup!.selectAll(".region")
+                            .each(d => {
+                                // @ts-ignore
+                                if (regex.test(d.properties.name)) {
+                                    showYamataiColors.value = false;
+                                    labelContainers!.selectAll(".region-label")
+                                        // @ts-ignore
+                                        .filter(d => d.properties.chineseName == "福冈县")
+                                        .text("邪马台")
+                                        .attr("opacity", 0)
+                                        .attr("x", () => 0)
+                                        .attr("y", () => 0);
+                                    // @ts-ignore
+                                    highlightRegion(mapGroup!, d.properties.name, true, jinjiColor)
+                                }
+                            });
+                    }, time - 200)
+                }, time)
+            })
+        }, time)
+    }
+}
+
+// 邪马台吞并大和
+const remerge = ref(false)
+const toggleRemerge = () => {
+    remerge.value = !remerge.value;
+    if (remerge.value) {
+        // 逐步吞并中国地区，再吞并邪马台
+        const mergeList = ["Okayama", "Tottori", "Shimane", "Hiroshima", "Yamaguchi"]
+        const time = 500
+        highlightRegion(mapGroup!, mergeList[4], true, yamataiColor)
+        setTimeout(() => {
+            highlightRegion(mapGroup!, mergeList[3], true, yamataiColor)
+            highlightRegion(mapGroup!, mergeList[2], true, yamataiColor)
+            setTimeout(() => {
+                highlightRegion(mapGroup!, mergeList[1], true, yamataiColor)
+                highlightRegion(mapGroup!, mergeList[0], true, yamataiColor)
+                setTimeout(() => {
+                    showJinji.value = false;
+                    toggleJinji("大和国", yamataiColor)
+                    // 因此 “大和” 的名字
+                    setTimeout(() => {
+                        labelContainers!.selectAll(".region-label")
+                            // @ts-ignore
+                            .filter(d => d.properties.chineseName == "大阪府")
+                            .text("")
+                            .attr("opacity", 0)
+                            .attr("x", () => 0)
+                    }, 100)
+                }, time)
+            }, time)
+        }, time)
+    }
+}
+
+// 重置颜色
+const resetColors = () => {
+    showOptionColors.value = false;
+    showYamataiColors.value = false;
+    showGonugoku.value = false;
+    showJinji.value = false;
+    mapGroup!.selectAll(".region")
+        .transition()
+        .duration(500)
+        .attr("fill", defaultColor);
+}
 </script>
 
 
@@ -173,5 +366,19 @@ button {
     text-anchor: middle;
     pointer-events: none;
     fill: #F5F5DC;
+}
+
+#shouLuoyang.active {
+    background-color: #9C27B0;
+    /* 紫色背景 */
+    color: white;
+    /* 白色文字 */
+}
+
+#showJinji.active {
+    background-color: #009688;
+    /* 绿色背景 */
+    color: white;
+    /* 白色文字 */
 }
 </style>

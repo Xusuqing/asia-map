@@ -6,8 +6,9 @@
     <button id="showHoverNames" :class="{ active: showHoverRegionNames }">悬浮显示名字</button>
     <button id="copy-location">复制位置信息</button>
     <button id="jump-to-location">跳转位置</button>
-    <Episode1 v-if="mapGroup" :mapGroup="mapGroup" :labelContainers="labelContainers"></Episode1>
-    <SelectBorder />
+    <Episode1 v-if="mapGroup" :projection="projection" :mapGroup="mapGroup" :labelContainers="labelContainers">
+    </Episode1>
+    <!-- <SelectBorder /> -->
   </div>
   <div class="map-container" id="map"></div>
   <div class="tooltip" id="tooltip" style="opacity: 0;"></div>
@@ -15,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import SelectBorder from './components/SelectBorder/index.vue'
+// import SelectBorder from './components/SelectBorder/index.vue'
 import * as d3 from 'd3'
 import { backgroundColor, showOptionColors, regionColors, defaultColor, noStrokeRegions, showHoverRegionNames, showRegionNames } from "./config/config"
 // import { japanJson } from './assets/japan';
@@ -41,6 +42,8 @@ let labelContainers: Reactive<d3.Selection<SVGGElement, {
 const path: Ref<d3.GeoPath<any, d3.GeoPermissibleObjects>> = ref()
 // 初始化旋转角度
 const rotationAngle = ref(0);
+// 创建地图投影（针对日本区域调整）
+const projection: Ref<d3.GeoProjection | null> = ref(null)
 onMounted(() => {
 
   // 设置地图容器尺寸
@@ -66,14 +69,15 @@ onMounted(() => {
   let isRotating = false; // 旋转状态标志
 
   // 创建地图投影（针对日本区域调整）
-  const projection = d3.geoMercator()
+
+  projection.value = d3.geoMercator()
     .center([138.3833, 35.6833]) // 日本中心
     .scale(2000)
     .translate([width / 2, height / 2]);
 
   // 创建路径生成器
   path.value = d3.geoPath()
-    .projection(projection);
+    .projection(projection.value);
 
   // 创建缩放行为
   const zoom = d3.zoom()
@@ -140,6 +144,7 @@ onMounted(() => {
   //   .attr("x", -850) //（x减去半宽）
   //   .attr("y", 60.6812) // 居中对齐（y减去半高）
   //   .attr("preserveAspectRatio", "xMidYMid meet"); // 保持图片比例
+
   mapGroup.value.append("image")
     .attr("class", "map-image") // 自定义类名，用于样式控制
     .attr("xlink:href", "/sanguo1.png") // 图片URL（示例图）
@@ -148,6 +153,9 @@ onMounted(() => {
     .attr("x", -880) //（x减去半宽）
     .attr("y", 60.6812) // 居中对齐（y减去半高）
     .attr("preserveAspectRatio", "xMidYMid meet"); // 保持图片比例
+
+
+
 
   // 添加区域标签容器
   labelContainers = mapGroup.value.selectAll(".label-container")
@@ -267,10 +275,10 @@ onMounted(() => {
       .attr("height", newHeight);
 
     // 重置投影和路径生成器
-    projection
+    projection.value!
       .translate([newWidth / 2, newHeight / 2]);
 
-    path.value.projection(projection);
+    path.value.projection(projection.value);
 
     // 更新所有路径和标签位置
     // @ts-ignore
