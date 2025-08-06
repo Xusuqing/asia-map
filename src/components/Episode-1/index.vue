@@ -9,6 +9,10 @@
     <button id="showJinji" :class="{ active: showJinji }" @click="toggleJinji('大和国')">近畿大和国</button>
     <button id="merge" :class="{ active: merge }" @click="toggleMerge">大和吞并邪马台</button>
     <button id="remerge" :class="{ active: remerge }" @click="toggleRemerge">邪马台吞并大和</button>
+    <button id="showSanguo" :class="{ active: showSanguo }" @click="toggleSanguo">三国</button>
+    <button id="showDongjin" :class="{ active: showDongjin }" @click="toggleDongjin">东晋</button>
+    <button id="showLiusong" :class="{ active: showLiusong }" @click="toggleLiusong">刘宋</button>
+    <button id="showKorea" :class="{ active: showKorea }" @click="toggleKorea">朝鲜</button>
 
     <button id="resetColor" @click="resetColors">重置</button>
 </template>
@@ -88,7 +92,6 @@ const toggleLuoyang = () => {
             .attr("dy", 20) // 文字在圆形下方
             .attr("fill", "#fff")
             .attr("font-size", 12);
-        console.log(circleGroup);
 
     } else {
         // 移除洛阳
@@ -246,13 +249,23 @@ const toggleMerge = () => {
         const time = 500
         highlightRegion(mapGroup!, mergeList[0], true, jinjiColor)
         highlightRegion(mapGroup!, mergeList[1], true, jinjiColor)
+        highlightRegion(mapGroup!, "Fukui", true, jinjiColor)
+        highlightRegion(mapGroup!, "Aichi", true, jinjiColor)
         setTimeout(() => {
             highlightRegion(mapGroup!, mergeList[2], true, jinjiColor)
             highlightRegion(mapGroup!, mergeList[3], true, jinjiColor)
+            highlightRegion(mapGroup!, "Ishikawa", true, jinjiColor)
+            highlightRegion(mapGroup!, "Shizuoka", true, jinjiColor)
+            highlightRegion(mapGroup!, "Yamanashi", true, jinjiColor)
             setTimeout(() => {
                 highlightRegion(mapGroup!, mergeList[4], true, jinjiColor)
                 setTimeout(() => {
                     highlightRegion(mapGroup!, "Fukuoka", true, jinjiColor)
+                    highlightRegion(mapGroup!, "Toyama", true, jinjiColor)
+                    highlightRegion(mapGroup!, "Saitama", true, jinjiColor)
+                    highlightRegion(mapGroup!, "Tokyo", true, jinjiColor)
+                    highlightRegion(mapGroup!, "Kanagawa", true, jinjiColor)
+                    highlightRegion(mapGroup!, "Chiba", true, jinjiColor)
                     const regex = /(大分|福岡).*区/;
                     setTimeout(() => {
                         mapGroup!.selectAll(".region")
@@ -271,6 +284,11 @@ const toggleMerge = () => {
                                     highlightRegion(mapGroup!, d.properties.name, true, jinjiColor)
                                 }
                             });
+                        highlightRegion(mapGroup!, "Saga", true, jinjiColor)
+                        highlightRegion(mapGroup!, "Nagasaki", true, jinjiColor)
+                        highlightRegion(mapGroup!, "Kumamoto", true, jinjiColor)
+                        highlightRegion(mapGroup!, "Miyazaki", true, jinjiColor)
+                        highlightRegion(mapGroup!, "Kagoshima", true, jinjiColor)
                     }, time - 200)
                 }, time)
             })
@@ -293,9 +311,28 @@ const toggleRemerge = () => {
             setTimeout(() => {
                 highlightRegion(mapGroup!, mergeList[1], true, yamataiColor)
                 highlightRegion(mapGroup!, mergeList[0], true, yamataiColor)
+
                 setTimeout(() => {
                     showJinji.value = false;
                     toggleJinji("大和国", yamataiColor)
+                    highlightRegion(mapGroup!, "Fukui", true, yamataiColor)
+                    highlightRegion(mapGroup!, "Aichi", true, yamataiColor)
+                    highlightRegion(mapGroup!, "Ishikawa", true, yamataiColor)
+                    highlightRegion(mapGroup!, "Shizuoka", true, yamataiColor)
+                    highlightRegion(mapGroup!, "Yamanashi", true, yamataiColor)
+                    highlightRegion(mapGroup!, "Fukuoka", true, yamataiColor)
+                    highlightRegion(mapGroup!, "Toyama", true, yamataiColor)
+                    highlightRegion(mapGroup!, "Saitama", true, yamataiColor)
+                    highlightRegion(mapGroup!, "Tokyo", true, yamataiColor)
+                    highlightRegion(mapGroup!, "Kanagawa", true, yamataiColor)
+                    highlightRegion(mapGroup!, "Chiba", true, yamataiColor)
+                    highlightRegion(mapGroup!, "Saga", true, yamataiColor)
+                    highlightRegion(mapGroup!, "Nagasaki", true, yamataiColor)
+                    highlightRegion(mapGroup!, "Kumamoto", true, yamataiColor)
+                    highlightRegion(mapGroup!, "Miyazaki", true, yamataiColor)
+                    highlightRegion(mapGroup!, "Kagoshima", true, yamataiColor)
+
+
                     // 因此 “大和” 的名字
                     setTimeout(() => {
                         labelContainers!.selectAll(".region-label")
@@ -311,6 +348,146 @@ const toggleRemerge = () => {
     }
 }
 
+// 显示三国
+const showSanguo = ref(false)
+const toggleSanguo = () => {
+    showSanguo.value = !showSanguo.value;
+
+    // 如果有地图了，就去掉
+    if (mapGroup!.selectAll("image").size() > 0) {
+        mapGroup?.selectAll(".map-image").remove()
+    }
+    let deleteArray = ["广东省", "云南省", "山东省", "广西壮族自治区", "上海市", "浙江省"]
+    // 将deleteArray的元素从data中隐藏
+    mapGroup?.selectAll(".region")
+        // @ts-ignore
+        .filter(d => deleteArray.includes(d.properties.name))
+        .style("opacity", showSanguo.value ? 0 : 1)
+
+
+    showSanguo.value &&
+        mapGroup?.append("image")
+            .attr("class", "map-image") // 自定义类名，用于样式控制
+            .attr("xlink:href", "/sanguo1.png") // 图片URL（示例图）
+            .attr("width", 1400) // 图片宽度
+            .attr("transform", "rotate(8)")
+            .attr("x", -880)
+            .attr("y", 60.6812)
+            .attr("preserveAspectRatio", "xMidYMid meet"); // 保持图片比例
+
+}
+
+// 显示东晋
+const showDongjin = ref(false)
+const toggleDongjin = () => {
+    showDongjin.value = !showDongjin.value;
+
+    // 如果有地图了，就去掉
+    if (mapGroup!.selectAll("image").size() > 0) {
+        mapGroup?.selectAll(".map-image").remove()
+    }
+    let deleteArray: Array<string> = ["云南省", "广西壮族自治区", "香港特别行政区", "云南省"]
+    // 将deleteArray的元素从data中隐藏
+    mapGroup?.selectAll(".region")
+        // @ts-ignore
+        .filter(d => deleteArray.includes(d.properties.name))
+        .style("opacity", showDongjin.value ? 0 : 1)
+
+    showDongjin.value &&
+        mapGroup?.append("image")
+            .attr("class", "map-image") // 自定义类名，用于样式控制
+            .attr("xlink:href", "/dongjin1.png") // 图片URL（示例图）
+            .attr("width", 1025) // 图片宽度
+            .attr("transform", "rotate(7)")
+            .attr("x", -520)
+            .attr("y", 310)
+}
+
+// 显示刘宋
+const showLiusong = ref(false)
+const toggleLiusong = () => {
+    showLiusong.value = !showLiusong.value;
+    // 如果有地图了，就去掉
+    if (mapGroup!.selectAll("image").size() > 0) {
+        mapGroup?.selectAll(".map-image").remove()
+    }
+    let deleteArray = ["广西壮族自治区", "广东省", "上海市", "江苏省", "浙江省"]
+    // 将deleteArray的元素从data中隐藏
+    mapGroup?.selectAll(".region")
+        // @ts-ignore
+        .filter(d => deleteArray.includes(d.properties.name))
+        .style("opacity", showLiusong.value ? 0 : 1)
+
+    showLiusong.value &&
+        mapGroup?.append("image")
+            .attr("class", "map-image") // 自定义类名，用于样式控制
+            .attr("xlink:href", "/liusong1.png") // 图片URL（示例图）
+            .attr("width", 1295) // 图片宽度
+            .attr("transform", "rotate(0)")
+            .attr("x", -810)
+            .attr("y", 210)
+}
+
+// 显示朝鲜各国
+const showKorea = ref(false)
+const toggleKorea = () => {
+    showKorea.value = !showKorea.value;
+    showKorea.value &&
+        mapGroup?.append("image")
+            .attr("class", "map-image-1") // 自定义类名，用于样式控制
+            .attr("xlink:href", "/jiaye.png") // 图片URL（示例图）
+            .attr("width", 58) // 图片宽度
+            .attr("transform", "rotate(0)")
+            .attr("x", 472)
+            .attr("y", 460.4)
+    showKorea.value &&
+        mapGroup?.append("image")
+            .attr("class", "map-image-1") // 自定义类名，用于样式控制
+            .attr("xlink:href", "/gaogoli1.png") // 图片URL（示例图）
+            .attr("width", 324) // 图片宽度
+            .attr("transform", "rotate(11)")
+            .attr("x", 298)
+            .attr("y", -20)
+    const deleteArray = ["Kangwon-do", "Pyongannam-do", "Hwanghaenam-do", "Hamgyongnam-do", "North Hamgyong"]
+    // 将deleteArray的元素从data中隐藏
+    mapGroup?.selectAll(".region")
+        // @ts-ignore
+        .filter(d => deleteArray.includes(d.properties.name))
+        .style("opacity", showKorea.value ? 0 : 1)
+    // 新罗
+    const xinluoArray = ["Busan", "Daegu", "Ulsan", "Chungcheongbuk-do", "Gyeongsangbuk-do", "Kangwon-do"]
+    // 百济
+    const baijiArray = ["Hwanghaebuk-do", "Seoul", "Incheon", "Gwangju", "Daejeon", "Sejong", "Gyeonggi-do", "Chungcheongnam-do", "Jeollabuk-do", "Jeollanam-do", "Pyongannam-do", "Hwanghaenam-do"]
+
+    xinluoArray.forEach((item) => {
+        highlightRegion(mapGroup!, item, true, "#DDA0DD")
+    })
+    baijiArray.forEach((item) => {
+        highlightRegion(mapGroup!, item, true, "#FFD700")
+    })
+
+    labelContainers!.selectAll(".region-label")
+        // @ts-ignore
+        .filter(d => d.properties.chineseName == "忠清南道")
+        .text("百济")
+        .attr("opacity", 1)
+        .attr("x", () => 0)
+        .attr("y", () => 0)
+        .style("font-size", "10px")
+        .style("fill", "black")
+        ;
+    labelContainers!.selectAll(".region-label")
+        // @ts-ignore
+        .filter(d => d.properties.chineseName == "庆尚北道")
+        .text("新罗")
+        .attr("opacity", 1)
+        .attr("x", () => 0)
+        .attr("y", () => 0)
+        .style("font-size", "10px")
+        .style("fill", "black")
+        ;
+}
+
 // 重置颜色
 const resetColors = () => {
     showOptionColors.value = false;
@@ -321,7 +498,14 @@ const resetColors = () => {
         .transition()
         .duration(500)
         .attr("fill", defaultColor);
+    showSanguo.value = true;
+    toggleSanguo()
+    showDongjin.value = true;
+    toggleDongjin()
+    showLiusong.value = true;
+    toggleLiusong()
 }
+
 </script>
 
 
@@ -377,6 +561,34 @@ button {
 
 #showJinji.active {
     background-color: #009688;
+    /* 绿色背景 */
+    color: white;
+    /* 白色文字 */
+}
+
+#showSanguo.active {
+    background-color: #FFC107;
+    /* 黄色背景 */
+    color: white;
+    /* 白色文字 */
+}
+
+#showDongjin.active {
+    background-color: #795548;
+    /* 棕色背景 */
+    color: white;
+    /* 白色文字 */
+}
+
+#showLiusong.active {
+    background-color: #2196F3;
+    /* 蓝色背景 */
+    color: white;
+    /* 白色文字 */
+}
+
+#showKorea.active {
+    background-color: #4CAF50;
     /* 绿色背景 */
     color: white;
     /* 白色文字 */

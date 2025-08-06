@@ -139,20 +139,13 @@ const asiaJson: {
     type: "FeatureCollection",
     features: []
 }
-let deleteArray = ["广东省", "云南省", "山东省", "广西壮族自治区", "上海市", "浙江省"]
-// let deleteArray = []
-for (let i = 0; i < chinaJson.features.length; i++) {
-    if (deleteArray.includes(chinaJson.features[i].properties.name)) {
-        chinaJson.features.splice(i, 1)
-        i--
-    }
-}
+
 
 if (chinaJson) {
     asiaJson.features = [...japanJson.features, ...chinaJson.features, ...southKoreaJson.features, ...northKoreaJson.features]
     asiaJson.features.forEach((item, index) => {
         // @ts-ignore
-        item.properties.chineseName = table[item.properties!.name]
+        item.properties.chineseName = table[item.properties!.name] || item.properties!.name
     })
 }
 

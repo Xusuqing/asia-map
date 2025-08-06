@@ -136,27 +136,6 @@ onMounted(() => {
     })
     ;
 
-  // mapGroup.value.append("image")
-  //   .attr("class", "map-image") // 自定义类名，用于样式控制
-  //   .attr("xlink:href", "/sanguo.png") // 图片URL（示例图）
-  //   .attr("width", 1400) // 图片宽度
-  //   .attr("transform", "rotate(3)")
-  //   .attr("x", -850) //（x减去半宽）
-  //   .attr("y", 60.6812) // 居中对齐（y减去半高）
-  //   .attr("preserveAspectRatio", "xMidYMid meet"); // 保持图片比例
-
-  mapGroup.value.append("image")
-    .attr("class", "map-image") // 自定义类名，用于样式控制
-    .attr("xlink:href", "/sanguo1.png") // 图片URL（示例图）
-    .attr("width", 1400) // 图片宽度
-    .attr("transform", "rotate(8)")
-    .attr("x", -880) //（x减去半宽）
-    .attr("y", 60.6812) // 居中对齐（y减去半高）
-    .attr("preserveAspectRatio", "xMidYMid meet"); // 保持图片比例
-
-
-
-
   // 添加区域标签容器
   labelContainers = mapGroup.value.selectAll(".label-container")
     .data(geojsonData.features)
@@ -356,6 +335,12 @@ button {
 
 
 .map-image {
+  z-index: 100;
+  user-select: none;
+  pointer-events: none;
+}
+
+.map-image-1 {
   z-index: 100;
   user-select: none;
   pointer-events: none;
