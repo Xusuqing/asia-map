@@ -13,6 +13,7 @@
     <button id="showDongjin" :class="{ active: showDongjin }" @click="toggleDongjin">东晋</button>
     <button id="showLiusong" :class="{ active: showLiusong }" @click="toggleLiusong">刘宋</button>
     <button id="showKorea" :class="{ active: showKorea }" @click="toggleKorea">朝鲜</button>
+    <button id="showRenna" @click="toggleRenna">吞并任那</button>
 
     <button id="resetColor" @click="resetColors">重置</button>
 </template>
@@ -293,6 +294,14 @@ const toggleMerge = () => {
                         highlightRegion(mapGroup!, "Kagawa", true, jinjiColor)
                         highlightRegion(mapGroup!, "Ehime", true, jinjiColor)
                         highlightRegion(mapGroup!, "Kochi", true, jinjiColor)
+                        // 隐藏狗奴国名字
+                        labelContainers!.selectAll(".region-label")
+                            // @ts-ignore
+                            .filter(d => d.properties.chineseName == "熊本县")
+                            .text("狗奴国")
+                            .transition()
+                            .duration(500)
+                            .attr("opacity", 0)
                     }, time - 200)
                 }, time)
             })
@@ -339,6 +348,14 @@ const toggleRemerge = () => {
                     highlightRegion(mapGroup!, "Kagawa", true, yamataiColor)
                     highlightRegion(mapGroup!, "Ehime", true, yamataiColor)
                     highlightRegion(mapGroup!, "Kochi", true, yamataiColor)
+                    // 隐藏狗奴国名字
+                    labelContainers!.selectAll(".region-label")
+                        // @ts-ignore
+                        .filter(d => d.properties.chineseName == "熊本县")
+                        .text("狗奴国")
+                        .transition()
+                        .duration(500)
+                        .attr("opacity", 0)
 
                     // 因此 “大和” 的名字
                     setTimeout(() => {
@@ -369,8 +386,9 @@ const toggleSanguo = () => {
     mapGroup?.selectAll(".region")
         // @ts-ignore
         .filter(d => deleteArray.includes(d.properties.name))
+        .transition()
+        .duration(500)
         .style("opacity", showSanguo.value ? 0 : 1)
-
 
     showSanguo.value &&
         mapGroup?.append("image")
@@ -380,8 +398,12 @@ const toggleSanguo = () => {
             .attr("transform", "rotate(8)")
             .attr("x", -880)
             .attr("y", 60.6812)
+            .attr("opacity", 0)
             .attr("preserveAspectRatio", "xMidYMid meet"); // 保持图片比例
-
+    d3.selectAll(".map-image")
+        .transition()
+        .duration(500)
+        .attr("opacity", 1)
 }
 
 // 显示东晋
@@ -398,6 +420,8 @@ const toggleDongjin = () => {
     mapGroup?.selectAll(".region")
         // @ts-ignore
         .filter(d => deleteArray.includes(d.properties.name))
+        .transition()
+        .duration(500)
         .style("opacity", showDongjin.value ? 0 : 1)
 
     showDongjin.value &&
@@ -408,6 +432,11 @@ const toggleDongjin = () => {
             .attr("transform", "rotate(7)")
             .attr("x", -520)
             .attr("y", 310)
+            .attr("opacity", 0)
+    d3.selectAll(".map-image")
+        .transition()
+        .duration(500)
+        .attr("opacity", 1)
 }
 
 // 显示刘宋
@@ -423,6 +452,8 @@ const toggleLiusong = () => {
     mapGroup?.selectAll(".region")
         // @ts-ignore
         .filter(d => deleteArray.includes(d.properties.name))
+        .transition()
+        .duration(500)
         .style("opacity", showLiusong.value ? 0 : 1)
 
     showLiusong.value &&
@@ -433,6 +464,11 @@ const toggleLiusong = () => {
             .attr("transform", "rotate(0)")
             .attr("x", -810)
             .attr("y", 210)
+            .attr("opacity", 0)
+    d3.selectAll(".map-image")
+        .transition()
+        .duration(500)
+        .attr("opacity", 1)
 }
 
 // 显示朝鲜各国
@@ -447,6 +483,7 @@ const toggleKorea = () => {
             .attr("transform", "rotate(0)")
             .attr("x", 472)
             .attr("y", 460.4)
+            .attr("opacity", 1)
     showKorea.value &&
         mapGroup?.append("image")
             .attr("class", "map-image-1") // 自定义类名，用于样式控制
@@ -493,6 +530,12 @@ const toggleKorea = () => {
         .style("font-size", "10px")
         .style("fill", "black")
         ;
+}
+
+const toggleRenna = () => {
+    highlightRegion(mapGroup!, "Gyeongsangnam-do", true, "#DDA0DD")
+    d3.selectAll(".map-image-1").filter((d, i) => i == 0).transition().duration(500).attr("opacity", 0)
+
 }
 
 // 重置颜色

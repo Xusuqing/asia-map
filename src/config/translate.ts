@@ -143,7 +143,7 @@ const asiaJson: {
 
 if (chinaJson) {
     asiaJson.features = [...japanJson.features, ...chinaJson.features, ...southKoreaJson.features, ...northKoreaJson.features]
-    asiaJson.features.forEach((item, index) => {
+    asiaJson.features.forEach((item) => {
         // @ts-ignore
         item.properties.chineseName = table[item.properties!.name] || item.properties!.name
     })

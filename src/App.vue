@@ -1,8 +1,8 @@
 <template>
   <div class="controls">
-    <button id="rotate-left">向左旋转</button>
+    <!-- <button id="rotate-left">向左旋转</button>
     <button id="rotate-right">向右旋转</button>
-    <button id="reset-rotation">重置旋转</button>
+    <button id="reset-rotation">重置旋转</button> -->
     <button id="showHoverNames" :class="{ active: showHoverRegionNames }">悬浮显示名字</button>
     <button id="copy-location">复制位置信息</button>
     <button id="jump-to-location">跳转位置</button>
@@ -233,16 +233,19 @@ onMounted(() => {
 
   // 跳转到指定位置控制
   d3.select("#jump-to-location").on("click", () => {
-    svg.transition() // 添加过渡动画
-      .duration(500) // 动画持续500ms
-      .call(
-        // @ts-ignore
-        zoom.transform,
-        // 根据保存的状态创建变换
-        d3.zoomIdentity
-          .translate(currentMapState.x, currentMapState.y)
-          .scale(currentMapState.k)
-      );
+    navigator.clipboard.readText().then(res => {
+      currentMapState = JSON.parse(res);
+      svg.transition() // 添加过渡动画
+        .duration(500) // 动画持续500ms
+        .call(
+          // @ts-ignore
+          zoom.transform,
+          // 根据保存的状态创建变换
+          d3.zoomIdentity
+            .translate(currentMapState.x, currentMapState.y)
+            .scale(currentMapState.k)
+        );
+    })
   });
 
   // 处理窗口大小调整
