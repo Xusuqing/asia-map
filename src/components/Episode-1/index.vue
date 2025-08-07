@@ -289,6 +289,10 @@ const toggleMerge = () => {
                         highlightRegion(mapGroup!, "Kumamoto", true, jinjiColor)
                         highlightRegion(mapGroup!, "Miyazaki", true, jinjiColor)
                         highlightRegion(mapGroup!, "Kagoshima", true, jinjiColor)
+                        highlightRegion(mapGroup!, "Tokushima", true, jinjiColor)
+                        highlightRegion(mapGroup!, "Kagawa", true, jinjiColor)
+                        highlightRegion(mapGroup!, "Ehime", true, jinjiColor)
+                        highlightRegion(mapGroup!, "Kochi", true, jinjiColor)
                     }, time - 200)
                 }, time)
             })
@@ -331,7 +335,10 @@ const toggleRemerge = () => {
                     highlightRegion(mapGroup!, "Kumamoto", true, yamataiColor)
                     highlightRegion(mapGroup!, "Miyazaki", true, yamataiColor)
                     highlightRegion(mapGroup!, "Kagoshima", true, yamataiColor)
-
+                    highlightRegion(mapGroup!, "Tokushima", true, yamataiColor)
+                    highlightRegion(mapGroup!, "Kagawa", true, yamataiColor)
+                    highlightRegion(mapGroup!, "Ehime", true, yamataiColor)
+                    highlightRegion(mapGroup!, "Kochi", true, yamataiColor)
 
                     // 因此 “大和” 的名字
                     setTimeout(() => {
