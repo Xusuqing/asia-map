@@ -1,18 +1,19 @@
 <template>
   <div class="controls">
-    <!-- <button id="rotate-left">向左旋转</button>
+    <button id="rotate-left">向左旋转</button>
     <button id="rotate-right">向右旋转</button>
-    <button id="reset-rotation">重置旋转</button> -->
+    <button id="reset-rotation">重置旋转</button>
     <button id="showHoverNames" :class="{ active: showHoverRegionNames }">悬浮显示名字</button>
     <button id="copy-location">复制位置信息</button>
     <button id="jump-to-location">跳转位置</button>
-    <Episode1 v-if="mapGroup" :projection="projection" :mapGroup="mapGroup" :labelContainers="labelContainers">
-    </Episode1>
+    <button id="jump-to-location-rotate">跳转并旋转</button>
+    <!-- <Episode1 v-if="mapGroup" :projection="projection" :mapGroup="mapGroup" :labelContainers="labelContainers">
+    </Episode1> -->
+    <Episode2 v-if="mapGroup" :map-group="mapGroup" :labelContainers="labelContainers"></Episode2>
     <!-- <SelectBorder /> -->
   </div>
   <div class="map-container" id="map"></div>
   <div class="tooltip" id="tooltip" style="opacity: 0;"></div>
-
 </template>
 
 <script setup lang="ts">
@@ -23,6 +24,7 @@ import { backgroundColor, showOptionColors, regionColors, defaultColor, noStroke
 import { asiaJson } from './config/translate';
 import { reactive, onMounted, type Reactive, ref, type Ref } from 'vue';
 import Episode1 from './components/Episode-1/index.vue'
+import Episode2 from './components/Episode-2/index.vue'
 // @ts-ignore
 let mapGroup: Ref<d3.Selection<SVGGElement, unknown, HTMLElement, any>> = ref()
 // @ts-ignore
@@ -246,6 +248,25 @@ onMounted(() => {
             .scale(currentMapState.k)
         );
     })
+    // updateRotation(30)
+  });
+
+  // 跳转到指定位置并旋转
+  d3.select("#jump-to-location-rotate").on("click", () => {
+    navigator.clipboard.readText().then(res => {
+      currentMapState = JSON.parse(res);
+      svg.transition() // 添加过渡动画
+        .duration(500) // 动画持续500ms
+        .call(
+          // @ts-ignore
+          zoom.transform,
+          // 根据保存的状态创建变换
+          d3.zoomIdentity
+            .translate(currentMapState.x, currentMapState.y)
+            .scale(currentMapState.k)
+        );
+    })
+    updateRotation(25)
   });
 
   // 处理窗口大小调整
